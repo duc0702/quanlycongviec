@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: employee-service
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/work_management
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  cloud:
+    discovery:
+      enabled: true
+
+server:
+  port: 8802
+
+eureka:
+  client:
+    service-url:
+      default-zone: http://localhost:8761/eureka/
+    enabled: true
+
+jwt:
+  signing-key: "QFeZ7E/R2W8ZDOycAs6tNFfxY4SdgdcIGkF6mkhs/o3xR4+AeXrMErYZXCmmakkv"

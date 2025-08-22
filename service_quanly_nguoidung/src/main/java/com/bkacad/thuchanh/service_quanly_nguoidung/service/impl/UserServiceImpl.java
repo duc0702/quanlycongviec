@@ -18,6 +18,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -46,13 +50,15 @@ private final UserMapper userMapper;
             throw new AppException(ErrorCode.EMAIL_EXISTED);
         }
         User user = userMapper.toUser(userCreateRequest);
+        PasswordEncoder passwordEncode= new BCryptPasswordEncoder(10);
+        user.setPassword(passwordEncode.encode(user.getPassword()));
         user.setRole(UserRole.EMPLOYEE);
         user.setStatus(UserStatus.ACTIVE);
         user.setCreateAt(LocalDateTime.now());
         userRepository.save(user);
         return "User created successfully name: " + user.getFullName();
     }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @Override
     public PagedResponse<UserResponse> findEmployees(String search, int page, int limit, String sortBy, String sortOrder) {
         Sort sort = Sort.by(Sort.Direction.fromString(sortOrder), sortBy);
@@ -109,6 +115,15 @@ private final UserMapper userMapper;
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         user.setStatus(UserStatus.INACTIVE);
         userRepository.save(user);
+    }
+
+    @Override
+    @PostAuthorize("returnObject.username== authentication.name ")
+    public UserResponse findById(Integer id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        return UserResponse.fromEntity(user);
+
     }
 }
 

@@ -9,9 +9,13 @@ import com.bkacad.thuchanh.service_quanly_nguoidung.dto.response.UserResponse;
 import com.bkacad.thuchanh.service_quanly_nguoidung.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 //
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/employees/")
@@ -25,6 +29,7 @@ public class UserController {
         ApiResponse<String> response = new ApiResponse<String>(200, "Tạo người dùng thành công", fullName);
         return ResponseEntity.ok(response);
     }
+
     @GetMapping
     public ResponseEntity<ApiResponse<PagedResponse<UserResponse>>> getEmployees(
             @RequestParam(name = "search", required = false, defaultValue = "") String search,
@@ -33,6 +38,9 @@ public class UserController {
             @RequestParam(name = "sortBy", required = false, defaultValue = "createAt") String sortBy,
             @RequestParam(name = "sortOrder", required = false, defaultValue = "desc") String sortOrder
     ) {
+        var authenticatedUser = SecurityContextHolder.getContext().getAuthentication();
+        log.info("getEmployees {}", authenticatedUser.getName());
+        log.info("getEmployees {}", authenticatedUser.getAuthorities());
         PagedResponse<UserResponse> response = userService.findEmployees(search, page, limit, sortBy, sortOrder);
         ApiResponse <PagedResponse<UserResponse>> apiResponse = new ApiResponse<>(
                 200, "Lấy danh sách người dùng thành công", response);
@@ -54,5 +62,11 @@ public class UserController {
         userService.deleteEmployee(id);
         ApiResponse<String> response = new ApiResponse<>(200, "Xoá người dùng thành công", null);
         return ResponseEntity.ok(response);
+    }
+    @GetMapping("{id}")
+    public ResponseEntity<ApiResponse<UserResponse>> detailEmployee(@PathVariable Integer id) {
+        UserResponse userResponse = userService.findById(id);
+        ApiResponse<UserResponse> apiResponse = new ApiResponse<>(200, "Lấy thông tin người dùng thành công", userResponse);
+        return ResponseEntity.ok(apiResponse);
     }
 }

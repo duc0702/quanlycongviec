@@ -10,7 +10,8 @@ public enum ErrorCode {
     USERNAME_EXISTED(1004, "User already existed", HttpStatus.BAD_REQUEST),
     USER_NOT_FOUND(1003, "không tìm thấy người dùng", HttpStatus.BAD_REQUEST),
     UNCATEGORIZED_EXCEPTION(9999, "UNCATEGORIZED_EXCEPTION", HttpStatus.BAD_REQUEST),
-    EMAIL_EXISTED(1004, "Email already exists", HttpStatus.BAD_REQUEST);
+    EMAIL_EXISTED(1004, "Email already exists", HttpStatus.BAD_REQUEST),
+    UNAUTHENTICATION(1005, "Unauthenticatin", HttpStatus.BAD_REQUEST);
 
 
     private final int errorCode;
